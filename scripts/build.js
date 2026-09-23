@@ -54,9 +54,11 @@ async function buildCss(html) {
     target: 'es2020',
     legalComments: 'none',
   });
+  // After the first frame, or on load if the tab is in the background (no frames).
   const loader =
-    '<script>requestAnimationFrame(function(){setTimeout(function(){' +
-    "var s=document.createElement('script');s.src='assets/js/app.js';document.body.appendChild(s)})})</script>";
+    '<script>(function(){var done=false;function go(){if(done)return;done=true;' +
+    "var s=document.createElement('script');s.src='assets/js/app.js';document.body.appendChild(s)}" +
+    "requestAnimationFrame(function(){setTimeout(go)});addEventListener('load',function(){setTimeout(go)})})()</script>";
   html = replaceOnce(html, /\s*<!-- scripts:start -->[\s\S]*?<!-- scripts:end -->/, '', 'scripts block');
   html = replaceOnce(html, /<\/body>/, `${loader}\n</body>`, 'body end');
   const preconnect = '<link href="https://framerusercontent.com" rel="preconnect" crossorigin="">';

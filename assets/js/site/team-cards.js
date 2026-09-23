@@ -48,9 +48,9 @@
       block = descriptionBlock(bio);
       border.after(block);
       const rich = block.querySelector('.framer-1ekfv2i');
-      animate(rich, { opacity: '1' }, TEXT_IN, { opacity: '0.001' });
-      animate(image, { opacity: '0' }, FADE);
-      animate(panel, { opacity: '1' }, FADE);
+      animate(rich, { opacity: 1 }, TEXT_IN, { opacity: 0.001 });
+      animate(image, { opacity: 0 }, FADE);
+      animate(panel, { opacity: 1 }, FADE);
     });
 
     card.addEventListener('pointerleave', () => {
@@ -59,8 +59,8 @@
       block = null;
       card.classList.remove('hover');
       if (baseName) card.setAttribute('data-framer-name', baseName);
-      animate(image, { opacity: '1' }, FADE);
-      animate(panel, { opacity: '0' }, FADE);
+      animate(image, { opacity: 1 }, FADE);
+      animate(panel, { opacity: 0 }, FADE);
     });
   }
 

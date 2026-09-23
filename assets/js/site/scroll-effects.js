@@ -48,7 +48,7 @@
       const hide = d === 'down';
       if (hide === hidden) return;
       hidden = hide;
-      elements.forEach(el => animate(el, { opacity: hide ? '0' : '1' }, HIDE_TRANSITION));
+      elements.forEach(el => animate(el, { opacity: hide ? 0 : 1 }, HIDE_TRANSITION));
     });
   }
 

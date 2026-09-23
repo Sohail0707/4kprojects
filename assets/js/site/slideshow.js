@@ -21,7 +21,7 @@
   };
 
   function init() {
-    const { tweenValue, wrap } = FourK.motion;
+    const { animateValue, wrap } = FourK.motion;
     const section = document.querySelector('.framer-18wlzty-container section');
     if (!section) return;
     const track = section.querySelector('ul');
@@ -36,7 +36,7 @@
     let loopWidth = 0;
     let index = CONFIG.startFrom + count;
     let position = 0; // unwrapped track offset (px)
-    let stopTween = null;
+    let tween = null;
     let timer = 0;
     let dragging = false;
     let inView = false;
@@ -55,10 +55,14 @@
       render();
     };
 
+    const stopTween = () => {
+      tween?.stop();
+      tween = null;
+    };
     const animateTo = to => {
-      stopTween?.();
+      stopTween();
       if (position === to) return;
-      stopTween = tweenValue(position, to, CONFIG.transition, v => {
+      tween = animateValue(position, to, CONFIG.transition, v => {
         position = v;
         render();
       });
@@ -94,7 +98,7 @@
       if (!dragging) {
         if (Math.hypot(dx, dy) < CONFIG.panThreshold) return;
         dragging = true;
-        stopTween?.();
+        stopTween();
         clearTimeout(timer);
         startPosition = position;
         track.style.cursor = 'grabbing';
@@ -145,7 +149,7 @@
 
     let resizeTimer = 0;
     new ResizeObserver(() => {
-      stopTween?.();
+      stopTween();
       clearTimeout(timer);
       measure();
       clearTimeout(resizeTimer);

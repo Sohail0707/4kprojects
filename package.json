@@ -1,0 +1,25 @@
+{
+  "name": "4k-cgi",
+  "version": "1.0.0",
+  "description": "1:1 static replica of <https://4kprojects.com/about-us> (a Framer site).",
+  "scripts": {
+    "vendor": "node scripts/vendor.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Sohail0707/4kprojects.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Sohail0707/4kprojects/issues"
+  },
+  "homepage": "https://github.com/Sohail0707/4kprojects#readme",
+  "dependencies": {
+    "lenis": "^1.3.26",
+    "motion": "^13.4.2"
+  },
+  "private": true
+}

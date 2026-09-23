@@ -38,7 +38,7 @@
     const answer = answers.find(a => a.question === text)?.answer ?? '';
     let open = false;
     let block = null;
-    let generation = 0;
+    let resize = null;
 
     const apply = variant => {
       row.classList.remove(VARIANT.closed.cls, VARIANT.open.cls);
@@ -54,19 +54,19 @@
       if (open) {
         block = answerBlock(answer);
         question.after(block);
-        animate(block, { opacity: '1' }, SPRING, { opacity: '0' });
-        animate(block.firstChild, { opacity: '1' }, SPRING, { opacity: '0.6' });
+        animate(block, { opacity: 1 }, SPRING, { opacity: 0 });
+        animate(block.firstChild, { opacity: 1 }, SPRING, { opacity: 0.6 });
       } else {
         block?.remove();
         block = null;
       }
       // Layout animation: spring the row between its old and new height.
-      FourK.motion.stop(row, ['height']);
+      resize?.stop();
       row.style.height = '';
       const to = row.offsetHeight;
-      const current = ++generation;
-      animate(row, { height: `${to}px` }, SPRING, { height: `${from}px` }).then(() => {
-        if (current === generation) row.style.height = '';
+      const current = (resize = animate(row, { height: `${to}px` }, SPRING, { height: `${from}px` }));
+      current.finished.then(() => {
+        if (resize === current) row.style.height = '';
       });
     });
   }

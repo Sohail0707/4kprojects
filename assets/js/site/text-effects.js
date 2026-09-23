@@ -9,8 +9,8 @@
   'use strict';
   const FourK = (window.FourK = window.FourK || {});
 
-  const FROM = { opacity: '0.001', transform: 'translateY(30px)' };
-  const TO = { opacity: '1', transform: 'none' };
+  const FROM = { opacity: 0.001, y: 30 };
+  const TO = { opacity: 1, y: 0 };
   const TRANSITION = { duration: 1, ease: [0.44, 0, 0.05, 1] };
   const STAGGER = 0.05;
 
@@ -45,12 +45,12 @@
 
   function play(container, effect) {
     const { animate, reducedMotion } = FourK.motion;
-    const target = reducedMotion ? { opacity: TO.opacity } : TO;
+    const [to, from] = reducedMotion ? [{ opacity: TO.opacity }, { opacity: FROM.opacity }] : [TO, FROM];
     const tokens = tokensOf(container);
     const groups = effect.tokenization === 'line' ? groupLines(tokens) : tokens.map(t => [t]);
     groups.forEach((group, i) => {
       const transition = { ...TRANSITION, delay: effect.startDelay + i * STAGGER };
-      group.forEach(token => animate(token, target, transition));
+      group.forEach(token => animate(token, to, transition, from));
     });
   }
 
@@ -59,8 +59,8 @@
     for (const effect of EFFECTS) {
       for (const container of document.querySelectorAll(effect.selector)) {
         for (const token of tokensOf(container)) {
-          token.style.opacity = FROM.opacity;
-          token.style.transform = reducedMotion ? 'none' : FROM.transform;
+          token.style.opacity = String(FROM.opacity);
+          token.style.transform = reducedMotion ? 'none' : `translateY(${FROM.y}px)`;
         }
         if (effect.trigger === 'mount') play(container, effect);
         else onceInView(container, () => play(container, effect), effect.threshold);

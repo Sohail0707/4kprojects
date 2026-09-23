@@ -55,11 +55,10 @@ npm run vendor
 
 ## Content
 
-Hover and open states render text that is not in the saved markup. It lives in
-`assets/js/data/content.js`. Names, roles and FAQ questions are filled in; the team
-`bio` and FAQ `answer` fields are empty, so fill them in with copy you have the rights
-to use (on the live site, the bios show when you hover a team card and the answers when
-you open a FAQ row).
+Hover and open states render text that is not in the saved markup: the team bios
+(shown when hovering a card) and the FAQ answers (shown when a row opens). It lives in
+`assets/js/data/content.js`. Bios are keyed by the card's name and answers are matched
+by exact question text, so keep those in sync with `about-us.html` when editing.
 
 ## Styling conventions
 

@@ -7,7 +7,7 @@
   const FourK = window.FourK;
 
   function start() {
-    FourK.textEffects.init(); // first, so hidden start states apply before paint
+    FourK.textEffects.init(); // in-view reveals (the hero reveal runs inline, on mount)
     FourK.smoothScroll.init();
     FourK.menu.init(); // before scroll effects, which drive its colour variant
     FourK.scrollEffects.init();

@@ -4,15 +4,20 @@
  * effects); this animates them the way Framer's runtime does:
  *   word → each word staggered by 0.05s after startDelay
  *   line → characters grouped into rendered lines, each line staggered 0.05s
+ *
+ * Self-contained (plain Web Animations, no library) so the hero reveal can run
+ * inline, straight after the hero markup, without waiting for the JS bundle:
+ *   FourK.textEffects.mount() → effects triggered on load (hero)
+ *   FourK.textEffects.init()  → effects triggered when scrolled into view
  */
 (function () {
   'use strict';
   const FourK = (window.FourK = window.FourK || {});
 
-  const FROM = { opacity: 0.001, y: 30 };
-  const TO = { opacity: 1, y: 0 };
-  const TRANSITION = { duration: 1, ease: [0.44, 0, 0.05, 1] };
-  const STAGGER = 0.05;
+  const HIDDEN = { opacity: '0.001', transform: 'translateY(30px)' };
+  const SHOWN = { opacity: '1', transform: 'none' };
+  const TIMING = { duration: 1000, easing: 'cubic-bezier(0.44, 0, 0.05, 1)' };
+  const STAGGER = 0.05; // seconds
 
   // Settings from the page component (Framer effect configs).
   const EFFECTS = [
@@ -22,6 +27,7 @@
     { selector: '.framer-42eout', tokenization: 'word', trigger: 'inView', threshold: 0.5, startDelay: 0 },   // FAQ title
   ];
 
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const tokensOf = container => [...container.querySelectorAll('span')].filter(s => s.style.display === 'inline-block');
 
   // Framer groups tokens into lines by their offsetTop.
@@ -43,30 +49,42 @@
     return lines;
   }
 
-  function play(container, effect) {
-    const { animate, reducedMotion } = FourK.motion;
-    const [to, from] = reducedMotion ? [{ opacity: TO.opacity }, { opacity: FROM.opacity }] : [TO, FROM];
-    const tokens = tokensOf(container);
-    const groups = effect.tokenization === 'line' ? groupLines(tokens) : tokens.map(t => [t]);
-    groups.forEach((group, i) => {
-      const transition = { ...TRANSITION, delay: effect.startDelay + i * STAGGER };
-      group.forEach(token => animate(token, to, transition, from));
-    });
+  function reveal(token, delay) {
+    const from = reducedMotion ? { opacity: HIDDEN.opacity } : HIDDEN;
+    const to = reducedMotion ? { opacity: SHOWN.opacity } : SHOWN;
+    Object.assign(token.style, to); // final state, kept after the animation
+    token.animate([from, to], { ...TIMING, delay: delay * 1000, fill: 'backwards' });
   }
 
-  function init() {
-    const { onceInView, reducedMotion } = FourK.motion;
-    for (const effect of EFFECTS) {
-      for (const container of document.querySelectorAll(effect.selector)) {
-        for (const token of tokensOf(container)) {
-          token.style.opacity = String(FROM.opacity);
-          token.style.transform = reducedMotion ? 'none' : `translateY(${FROM.y}px)`;
-        }
-        if (effect.trigger === 'mount') play(container, effect);
-        else onceInView(container, () => play(container, effect), effect.threshold);
-      }
+  function play(container, effect) {
+    const tokens = tokensOf(container);
+    const groups = effect.tokenization === 'line' ? groupLines(tokens) : tokens.map(t => [t]);
+    groups.forEach((group, i) => group.forEach(token => reveal(token, effect.startDelay + i * STAGGER)));
+  }
+
+  function each(trigger, fn) {
+    for (const effect of EFFECTS.filter(e => e.trigger === trigger)) {
+      document.querySelectorAll(effect.selector).forEach(container => fn(container, effect));
     }
   }
 
-  FourK.textEffects = { init };
+  function mount() {
+    each('mount', play);
+  }
+
+  function init() {
+    each('inView', (container, effect) => {
+      const io = new IntersectionObserver(
+        entries => {
+          if (!entries.some(e => e.isIntersecting && e.intersectionRatio >= effect.threshold)) return;
+          io.disconnect();
+          play(container, effect);
+        },
+        { threshold: effect.threshold }
+      );
+      io.observe(container);
+    });
+  }
+
+  FourK.textEffects = { mount, init };
 })();
